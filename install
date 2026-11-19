@@ -1,0 +1,42 @@
+#!/bin/bash
+# Install (or refresh) the files from this checkout. No sudo required.
+set -euo pipefail
+
+if [[ $# -gt 0 ]]; then
+  case "$1" in
+    -h|--help)
+      printf '%s\n' 'Usage: ./install' \
+        'Install or update from this checkout into ~/.local/share/zsh-devtools.' \
+        'Adds a source line to ${ZDOTDIR:-$HOME}/.zshrc.'
+      exit 0
+      ;;
+    *) printf '%s\n' 'Usage: ./install' >&2; exit 1 ;;
+  esac
+fi
+
+source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+install_dir="$HOME/.local/share/zsh-devtools"
+zshrc="${ZDOTDIR:-$HOME}/.zshrc"
+files=(help.zsh worktrees.zsh ports.zsh network.zsh zsh-devtools.plugin.zsh)
+
+# Check the source before making any changes.
+for file in "${files[@]}"; do
+  [[ -f "$source_dir/$file" ]] || { printf 'Missing source file: %s\n' "$file" >&2; exit 1; }
+done
+
+mkdir -p "$install_dir" "$(dirname -- "$zshrc")"
+install_dir=$(cd -- "$install_dir" && pwd -P)
+if [[ "$source_dir" != "$install_dir" ]]; then
+  for file in "${files[@]}"; do
+    cp "$source_dir/$file" "$install_dir/$file"
+  done
+fi
+
+# Keep the path portable and safe even when HOME contains spaces.
+source_line='source "$HOME/.local/share/zsh-devtools/zsh-devtools.plugin.zsh"'
+if [[ ! -f "$zshrc" ]] || ! grep -Fqx -- "$source_line" "$zshrc"; then
+  printf '\n# zsh-devtools\n%s\n' "$source_line" >> "$zshrc"
+fi
+
+printf 'Installed/updated zsh-devtools in %s\n' "$install_dir"
+printf 'Restart zsh or run: %s\n' "$source_line"

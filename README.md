@@ -34,15 +34,24 @@ zinit light sharpmist/zsh-devtools
 **No plugin manager**
 
 ```zsh
-git clone https://github.com/sharpmist/zsh-devtools ~/.zsh-devtools
-echo 'source ~/.zsh-devtools/zsh-devtools.plugin.zsh' >> ~/.zshrc
+git clone https://github.com/sharpmist/zsh-devtools
+cd zsh-devtools
+./install
 ```
 
-Source it after `compinit` if you want Tab completion of ports.
+`./install` copies the current checkout into `~/.local/share/zsh-devtools` and adds
+one source line to `${ZDOTDIR:-$HOME}/.zshrc`. Re-running it updates the installed
+files without duplicating that line. It requires no sudo and does not install dependencies.
 
-To update: `git pull` in the clone, then `exec zsh`.
+To update this installation, run `git pull --ff-only && ./install` in the clone,
+then `exec zsh`. For plugin-manager installations, use your manager's update command instead.
+
+Source the plugin after `compinit` if you want Tab completion of ports.
 
 ## Commands
+
+Run `devtools` (or its shorthand `zdev`) to list all available commands with descriptions.
+Both also accept `-h` or `--help`.
 
 ### Git worktrees
 
