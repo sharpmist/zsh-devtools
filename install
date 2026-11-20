@@ -17,7 +17,7 @@ fi
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 install_dir="$HOME/.local/share/zsh-devtools"
 zshrc="${ZDOTDIR:-$HOME}/.zshrc"
-files=(help.zsh worktrees.zsh ports.zsh network.zsh zsh-devtools.plugin.zsh)
+files=(common.zsh help.zsh worktrees.zsh ports.zsh network.zsh zsh-devtools.plugin.zsh)
 
 # Check the source before making any changes.
 for file in "${files[@]}"; do

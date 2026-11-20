@@ -1,0 +1,24 @@
+name: Tests
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install zsh on Linux
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y zsh
+      - name: Check shell syntax
+        run: |
+          bash -n install
+          bash -n tests/install.bash
+          for file in ./*.zsh tests/commands.zsh; do zsh -n "$file" || exit; done
+      - name: Test commands with mocked dependencies
+        run: zsh -f tests/commands.zsh
+      - name: Test installation in a temporary home
+        run: bash tests/install.bash
