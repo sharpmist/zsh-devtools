@@ -9,6 +9,11 @@ Built for **zsh on macOS** (it uses `ipconfig`, `route` and `pbpaste`).
 - [fzf](https://github.com/junegunn/fzf), for the pickers: `brew install fzf`
 - [qrencode](https://fukuchi.org/works/qrencode/) (optional), for QR codes: `brew install qrencode`
 
+Dependencies are checked when a command needs them, not at shell startup.
+`fzf` is only needed for pickers; explicit `whoport <port>` and `lanurl <port>`
+work without it. Port commands require `lsof`; `pubip` requires `curl`.
+Without `qrencode`, `qr` and `lanurl` still print their text successfully.
+
 ## Install
 
 **oh-my-zsh**
@@ -71,6 +76,8 @@ Both also accept `-h` or `--help`.
 | `killport [port]` | Pick listening processes to kill (Tab to select several), with a preview of each command |
 
 Tab after `killport`, `whoport` or `lanurl` completes the listening ports, with process name and PID.
+Port arguments must be decimal numbers from 1 to 65535 (at most five digits).
+Invalid arguments and cancelled or empty selections return a nonzero status without taking action.
 
 ### Network
 
@@ -82,3 +89,20 @@ Tab after `killport`, `whoport` or `lanurl` completes the listening ports, with 
 | `lanurl [port]` | Print `http://<lan-ip>:<port>` and its QR code, to open your dev server on a phone. With no port, pick one that is reachable from other devices |
 
 `lanurl` only lists ports bound to all interfaces. Start your dev server with `--host` (e.g. `pnpm start --host`) so other devices can reach it.
+
+## Development
+
+Run the tests with Bash and zsh installed:
+
+```sh
+bash -n install
+bash -n tests/install.bash
+for file in ./*.zsh tests/commands.zsh; do zsh -n "$file" || exit; done
+zsh -f tests/commands.zsh
+bash tests/install.bash
+```
+
+Command tests mock process, picker, clipboard, and network operations; they never
+kill real processes or contact external services. Installer tests use a temporary
+home directory. CI runs these checks on macOS and Linux (the plugin itself still
+targets macOS).
